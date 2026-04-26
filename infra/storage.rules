@@ -1,0 +1,37 @@
+rules_version = '2';
+
+// Craft rules based on the provided Cloud Storage bucket:
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Community Video Proofs
+    match /videos/{candidateId}/{userId}/{fileName} {
+      // Anyone can watch verified video proofs
+      allow read: if true;
+      
+      // Any authenticated user can upload a video proof (Max 50MB, strictly video types)
+      allow write: if isAuthenticated() 
+                   && request.resource.size < 50 * 1024 * 1024
+                   && request.resource.contentType.matches('video/.*')
+                   // Only allow them to write to their own namespace to prevent overwrites
+                   && request.auth.uid == userId;
+    }
+
+    // Candidate Profile Images
+    match /profiles/{candidateId}/{fileName} {
+      allow read: if true;
+      // Only admins should be able to upload official candidate photos
+      // (Requires custom claims or backend verification, so we lock writes directly from frontend)
+      allow write: if false; 
+    }
+
+    // Default deny
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

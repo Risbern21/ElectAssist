@@ -1,0 +1,202 @@
+.candidates-page {
+  padding-bottom: 4rem;
+  padding-top: 1rem;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.filters-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 16px 24px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  background: var(--bg-primary);
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.input-transparent {
+  background: none;
+  border: none;
+  color: white;
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.input-transparent:focus {
+  outline: none;
+}
+
+.filter-dropdowns {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.dropdown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-primary);
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.select-glass {
+  background: none;
+  border: none;
+  color: white;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+.select-glass option {
+  background: var(--bg-primary);
+}
+
+.candidates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.candidate-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.rank-badge {
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow-sm);
+  color: white;
+}
+
+.rank-1 { background: linear-gradient(135deg, #ffd700, #f39c12); }
+.rank-2 { background: linear-gradient(135deg, #e0e0e0, #95a5a6); }
+.rank-3 { background: linear-gradient(135deg, #cd7f32, #d35400); }
+.rank-badge:not(.rank-1):not(.rank-2):not(.rank-3) {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+}
+
+.candidate-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.candidate-img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid var(--border-light);
+  object-fit: cover;
+}
+
+.candidate-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.2rem;
+}
+
+.party-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.ward-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  padding: 12px 0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.stat-val {
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-family: 'Outfit';
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.w-full {
+  flex: 1;
+}
+
+.action-icon {
+  padding: 10px 14px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem;
+}
+
+@media (max-width: 768px) {
+  .filters-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

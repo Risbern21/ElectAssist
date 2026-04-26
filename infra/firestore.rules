@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      // In production, we assume admins have a custom claim `admin: true` 
+      // or exist in an 'admins' collection. 
+      // Example: return request.auth.token.admin == true;
+      return isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Candidates Collection
+    match /candidates/{candidateId} {
+      // Anyone can read candidate data to populate the leaderboard and map
+      allow read: if true;
+      
+      // ONLY authenticated Admins can Add, Update, or Delete candidates
+      // This prevents bad actors from creating fake politicians
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Admins Collection (Restricted System Data)
+    match /admins/{adminId} {
+      // Admins can read their own data. Nobody else can read the admin list.
+      allow read: if isAuthenticated() && request.auth.uid == adminId;
+      // Admin list is strictly managed via Google Cloud IAM / backend
+      allow write: if false; 
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
