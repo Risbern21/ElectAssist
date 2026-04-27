@@ -22,8 +22,13 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy the rest of the backend codebase
 COPY . .
 
-# Expose the standard FastAPI port
-EXPOSE 8000
+# Copy the frontend dist (previously copied to backend/static)
+COPY ./static ./static
+
+# Cloud Run uses the PORT environment variable
+ENV PORT 8080
+EXPOSE 8080
 
 # Specify the command to run the Uvicorn application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# We use the PORT environment variable
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT}"]

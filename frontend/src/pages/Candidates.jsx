@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Search, MapPin, Award, Filter, Video, ThumbsUp, Loader } from 'lucide-react';
-import { candidateApi } from '../lib/api';
+import { Search, MapPin, Award, Filter, Video, ThumbsUp, Loader, UploadCloud } from 'lucide-react';
+import { candidateApi, videoApi } from '../lib/api';
 import './Candidates.css';
 
 const Candidates = () => {
@@ -8,6 +8,28 @@ const Candidates = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedWard, setSelectedWard] = useState('All');
+  const [uploadingCandidate, setUploadingCandidate] = useState(null);
+
+  const handleFileUpload = async (e, candidateId) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingCandidate(candidateId);
+    try {
+      const formData = new FormData();
+      formData.append('candidate_id', candidateId);
+      formData.append('file', file);
+      
+      await videoApi.upload(formData);
+      alert('Video uploaded successfully! It is now pending moderation.');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to upload video: ' + err.message);
+    } finally {
+      setUploadingCandidate(null);
+      e.target.value = null; // Reset input
+    }
+  };
   
   useEffect(() => {
     const fetchCandidates = async () => {
@@ -113,7 +135,21 @@ const Candidates = () => {
             </div>
             
             <div className="card-actions">
-               <button className="btn btn-primary w-full">View Profile</button>
+               <button className="btn btn-primary w-full" style={{ position: 'relative' }} disabled={uploadingCandidate === candidate.id}>
+                 {uploadingCandidate === candidate.id ? (
+                   <><Loader className="animate-spin" size={18} style={{marginRight: '6px'}}/> Uploading...</>
+                 ) : (
+                   <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'}}>
+                     <UploadCloud size={18} /> Upload Proof
+                     <input 
+                       type="file" 
+                       accept="video/*" 
+                       onChange={(e) => handleFileUpload(e, candidate.id)}
+                       style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
+                     />
+                   </div>
+                 )}
+               </button>
                <button className="btn btn-secondary action-icon" title="Endorse">
                  <ThumbsUp size={18} />
                </button>

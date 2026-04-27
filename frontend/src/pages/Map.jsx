@@ -1,26 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Wrapper, Status } from '@googlemaps/react-wrapper';
 import { MapPin, Search } from 'lucide-react';
+import { mapApi } from '../lib/api';
 import './Map.css';
 
 // In a real app, you'd use your actual GCP maps key from env
 const MAPS_API_KEY = import.meta.env.VITE_MAPS_API_KEY || 'dummy_key';
 
-// A simple placeholder for when the actual Google Map is loading or API key is absent
-const MapPlaceholder = () => (
-   <div className="map-placeholder glass-panel text-center">
-     <MapPin size={48} className="text-primary" style={{marginBottom: '1rem'}} />
-     <h3>Interactive Election Map</h3>
-     <p className="text-muted">
-        In the full implementation (with a valid Google Maps API Key), this will render an interactive map showing polling booths, candidate territories, and recent community video uploads based on your location.
-     </p>
-     <div className="demo-map-controls">
-       <div className="mock-marker bounce">📍 Ward 5 Voting Center</div>
-     </div>
-   </div>
-);
-
-const Map = ({ center, zoom }) => {
+const Map = ({ center, zoom, booths }) => {
   const ref = useRef(null);
   const [map, setMap] = useState();
 
@@ -111,7 +98,27 @@ const Map = ({ center, zoom }) => {
         ],
       }));
     }
-  }, [ref, map]);
+  }, [ref, map, center, zoom]);
+
+  useEffect(() => {
+    if (map && center) {
+      map.setCenter(center);
+      map.setZoom(zoom);
+    }
+  }, [map, center, zoom]);
+
+  useEffect(() => {
+    if (map && booths && booths.length > 0) {
+      booths.forEach(booth => {
+        new window.google.maps.Marker({
+          position: { lat: booth.lat, lng: booth.lng },
+          map: map,
+          title: booth.name,
+          icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+        });
+      });
+    }
+  }, [map, booths]);
 
   return <div ref={ref} style={{ height: '100%', width: '100%' }} />;
 };
@@ -124,6 +131,41 @@ const render = (status) => {
 
 const MapView = () => {
   const [search, setSearch] = useState('');
+  const [mapCenter, setMapCenter] = useState({ lat: 12.9716, lng: 77.5946 });
+  const [mapZoom, setMapZoom] = useState(12);
+  const [booths, setBooths] = useState([]);
+
+  useEffect(() => {
+    const fetchBooths = async () => {
+      const data = await mapApi.getBooths();
+      setBooths(data);
+    };
+    fetchBooths();
+  }, []);
+
+  const handleSearch = () => {
+    if (!search) return;
+
+    const geocoder = new window.google.maps.Geocoder();
+    geocoder.geocode({ address: search }, (results, status) => {
+      if (status === 'OK' && results[0]) {
+        const location = results[0].geometry.location;
+        setMapCenter({
+          lat: location.lat(),
+          lng: location.lng()
+        });
+        setMapZoom(14); // Zoom in on search result
+      } else {
+        alert('Location not found. Please try a different pincode or ward.');
+      }
+    });
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   return (
     <div className="map-page container animate-fade-in">
@@ -134,20 +176,21 @@ const MapView = () => {
          </div>
          
          <div className="search-bar" style={{maxWidth: '350px'}}>
-            <Search className="text-muted" size={20} />
+            <Search className="text-muted" size={20} onClick={handleSearch} style={{ cursor: 'pointer' }} />
             <input 
               type="text" 
               className="input-transparent" 
               placeholder="Search ward or pincode..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleKeyPress}
             />
          </div>
       </div>
 
       <div className="map-container glass-panel">
          <Wrapper apiKey={MAPS_API_KEY} render={render}>
-            <Map center={{ lat: 12.9716, lng: 77.5946 }} zoom={12} />
+            <Map center={mapCenter} zoom={mapZoom} booths={booths} />
          </Wrapper>
       </div>
 

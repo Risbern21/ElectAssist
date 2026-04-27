@@ -33,6 +33,25 @@ service cloud.firestore {
       allow write: if false; 
     }
 
+    // Users Collection
+    match /users/{userId} {
+      // Users can read their own profile
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      
+      // Users can only create their own document and MUST set role to 'user'
+      allow create: if isAuthenticated() 
+                    && request.auth.uid == userId 
+                    && request.resource.data.role == 'user';
+      
+      // Users can update their own data but CANNOT change their role
+      allow update: if isAuthenticated() 
+                    && request.auth.uid == userId 
+                    && request.resource.data.role == resource.data.role;
+      
+      // Nobody can delete user profiles from the client
+      allow delete: if false;
+    }
+
     // Default deny
     match /{document=**} {
       allow read, write: if false;

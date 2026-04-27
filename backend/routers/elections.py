@@ -1,53 +1,57 @@
-from fastapi import APIRouter
-from typing import List, Dict
+from fastapi import APIRouter, Depends, HTTPException
+from typing import List
+from firebase_admin import firestore
+from schemas.election import ElectionStageCreate, ElectionStageResponse
+from core.auth import verify_admin_status
+import datetime
 
 router = APIRouter(tags=["Elections Timeline"])
 
-@router.get("/elections/timeline")
+@router.get("/elections/timeline", response_model=List[ElectionStageResponse])
 async def get_timeline():
     """
-    Returns the current election cycle roadmap.
-    In production, this queries the election calendar config in Firestore.
+    Returns the current election cycle roadmap from Firestore.
     """
-    return [
-        {
-            "id": 1,
-            "title": "Voter Registration",
-            "date": "Until Oct 15, 2026",
-            "status": "completed",
-            "description": "Register to vote or update your electoral roll details online or at your local booth.",
-            "aiPrompt": "How do I register to vote online in my state?"
-        },
-        {
-            "id": 2,
-            "title": "Candidate Nominations",
-            "date": "Oct 20 - Nov 5, 2026",
-            "status": "active",
-            "description": "Candidates file their nomination papers and affidavits.",
-            "aiPrompt": "Who are the nominated candidates from my constituency?"
-        },
-        {
-            "id": 3,
-            "title": "Campaign Period",
-            "date": "Nov 6 - Nov 25, 2026",
-            "status": "upcoming",
-            "description": "Candidates share their manifestos and hold public rallies.",
-            "aiPrompt": "Summarize the manifesto for candidate XYZ."
-        },
-        {
-            "id": 4,
-            "title": "Polling Day",
-            "date": "Nov 27, 2026",
-            "status": "upcoming",
-            "description": "Cast your vote at your designated polling station (7 AM - 6 PM).",
-            "aiPrompt": "Where is my polling booth?"
-        },
-        {
-            "id": 5,
-            "title": "Counting & Results",
-            "date": "Dec 4, 2026",
-            "status": "upcoming",
-            "description": "Votes are counted and the winning candidates are officially declared.",
-            "aiPrompt": "What happens during vote counting?"
-        }
-    ]
+    db = firestore.client()
+    stages_ref = db.collection('election_stages')
+    
+    try:
+        docs = stages_ref.order_by('created_at').stream()
+        results = []
+        for doc in docs:
+            data = doc.to_dict()
+            results.append(ElectionStageResponse(
+                id=doc.id,
+                **data
+            ))
+        return results
+    except Exception as e:
+        # Fallback if collection doesn't exist or error occurs
+        print(f"Error fetching timeline: {e}")
+        return []
+
+@router.post("/elections/timeline", response_model=ElectionStageResponse)
+async def create_stage(
+    stage: ElectionStageCreate,
+    admin_user: dict = Depends(verify_admin_status)
+):
+    """
+    Secure endpoint allowing ONLY admins to add new election stages.
+    """
+    db = firestore.client()
+    stages_ref = db.collection('election_stages')
+    
+    doc_data = stage.dict()
+    doc_data["created_at"] = datetime.datetime.now(datetime.timezone.utc)
+    doc_data["created_by"] = admin_user.get("uid")
+    
+    try:
+        doc_ref = stages_ref.document()
+        doc_ref.set(doc_data)
+        
+        return ElectionStageResponse(
+            id=doc_ref.id,
+            **stage.dict()
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database write failed: {str(e)}")

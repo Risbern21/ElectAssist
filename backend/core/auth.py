@@ -20,8 +20,7 @@ def verify_firebase_token(credentials: HTTPAuthorizationCredentials = Depends(se
 def verify_admin_status(user_token: dict = Depends(verify_firebase_token)):
     """
     Checks if the decoded token has administrative rights by explicitly
-    verifying if their UID exists in the 'admins' Firestore collection.
-    Admins must be added manually to the database; no public signups.
+    verifying if their role in the 'users' Firestore collection is 'admin'.
     """
     uid = user_token.get("uid")
     if not uid:
@@ -31,9 +30,9 @@ def verify_admin_status(user_token: dict = Depends(verify_firebase_token)):
         )
         
     db = firestore.client()
-    admin_doc = db.collection('admins').document(uid).get()
+    user_doc = db.collection('users').document(uid).get()
     
-    if not admin_doc.exists:
+    if not user_doc.exists or user_doc.to_dict().get("role") != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access Denied. You do not have administrator privileges."

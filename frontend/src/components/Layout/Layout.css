@@ -87,8 +87,61 @@
   text-align: center;
 }
 
-@media (max-width: 768px) {
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px;
+  transition: all 0.3s ease;
+}
+
+.hamburger:hover {
+  color: var(--primary);
+}
+
+@media (max-width: 992px) {
+  .hamburger {
+    display: block;
+  }
+
   .nav-links {
-    display: none; /* In a real app, add a hamburger menu */
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 280px;
+    height: 100vh;
+    background: rgba(10, 10, 15, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    padding: 8rem 2rem;
+    gap: 1.5rem;
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: var(--glass-border);
+    z-index: 99;
+  }
+
+  .nav-links.active {
+    right: 0;
+  }
+
+  .nav-link {
+    font-size: 1.1rem;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  .nav-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-text {
+    display: none;
   }
 }

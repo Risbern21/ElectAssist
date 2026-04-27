@@ -132,6 +132,3 @@ elect/
 - **Admin RBAC** restricts sensitive operations to authorized personnel.
 
 ---
-
-## 📄 License
-This project is licensed under the MIT License.
