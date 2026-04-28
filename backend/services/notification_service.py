@@ -2,7 +2,13 @@ from firebase_admin import messaging, firestore
 
 class NotificationService:
     def __init__(self):
-        self.db = firestore.client()
+        self._db = None  # Lazy init — avoids calling firestore.client() at import time
+
+    @property
+    def db(self):
+        if self._db is None:
+            self._db = firestore.client()
+        return self._db
 
     async def send_election_reminder(self, user_id: str, message_title: str, message_body: str):
         """

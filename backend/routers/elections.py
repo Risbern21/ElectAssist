@@ -41,7 +41,7 @@ async def create_stage(
     db = firestore.client()
     stages_ref = db.collection('election_stages')
     
-    doc_data = stage.dict()
+    doc_data = stage.model_dump()
     doc_data["created_at"] = datetime.datetime.now(datetime.timezone.utc)
     doc_data["created_by"] = admin_user.get("uid")
     
@@ -51,7 +51,7 @@ async def create_stage(
         
         return ElectionStageResponse(
             id=doc_ref.id,
-            **stage.dict()
+            **stage.model_dump()
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database write failed: {str(e)}")
