@@ -25,6 +25,9 @@ out/
 *.pem
 *.key
 serviceAccountKey.json
+service_account.json
+*service_account*.json
+*firebase-adminsdk*.json
 
 # Python caches and artifacts
 __pycache__/

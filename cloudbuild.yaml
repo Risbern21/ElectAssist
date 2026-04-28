@@ -1,0 +1,50 @@
+steps:
+  # Build the Docker image with Vite build-args baked in
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - '--tag=gcr.io/$PROJECT_ID/electassist:latest'
+      - '--build-arg=VITE_FIREBASE_API_KEY=${_VITE_FIREBASE_API_KEY}'
+      - '--build-arg=VITE_FIREBASE_AUTH_DOMAIN=${_VITE_FIREBASE_AUTH_DOMAIN}'
+      - '--build-arg=VITE_FIREBASE_PROJECT_ID=${_VITE_FIREBASE_PROJECT_ID}'
+      - '--build-arg=VITE_FIREBASE_STORAGE_BUCKET=${_VITE_FIREBASE_STORAGE_BUCKET}'
+      - '--build-arg=VITE_FIREBASE_MESSAGING_SENDER_ID=${_VITE_FIREBASE_MESSAGING_SENDER_ID}'
+      - '--build-arg=VITE_FIREBASE_APP_ID=${_VITE_FIREBASE_APP_ID}'
+      - '--build-arg=VITE_MAPS_API_KEY=${_VITE_MAPS_API_KEY}'
+      - '.'
+
+  # Push image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/electassist:latest']
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - electassist
+      - '--image=gcr.io/$PROJECT_ID/electassist:latest'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+
+images:
+  - 'gcr.io/$PROJECT_ID/electassist:latest'
+
+# ---------------------------------------------------------------------------
+# Substitution defaults — override these when triggering manually or via a
+# Cloud Build trigger. DO NOT commit real keys here; use Cloud Build
+# substitution variables or Secret Manager instead.
+# ---------------------------------------------------------------------------
+substitutions:
+  _VITE_FIREBASE_API_KEY: 'YOUR_FIREBASE_API_KEY'
+  _VITE_FIREBASE_AUTH_DOMAIN: 'YOUR_PROJECT.firebaseapp.com'
+  _VITE_FIREBASE_PROJECT_ID: 'YOUR_PROJECT_ID'
+  _VITE_FIREBASE_STORAGE_BUCKET: 'YOUR_PROJECT.firebasestorage.app'
+  _VITE_FIREBASE_MESSAGING_SENDER_ID: 'YOUR_SENDER_ID'
+  _VITE_FIREBASE_APP_ID: 'YOUR_APP_ID'
+  _VITE_MAPS_API_KEY: 'YOUR_MAPS_API_KEY'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

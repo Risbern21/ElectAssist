@@ -1,0 +1,14 @@
+node_modules
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.env
+.env
+**/.env
+*.log
+docker-compose.yml
+.git
+service_account.json
