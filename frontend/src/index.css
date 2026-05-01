@@ -9,29 +9,29 @@
   --primary-glow: rgba(78, 84, 200, 0.4);
   --secondary: #8f94fb;
   --accent: #ff4b2b;
-  
+
   --text-primary: #ffffff;
   --text-secondary: #a0a0b0;
   --text-muted: #6b6b7b;
-  
+
   --border-light: rgba(255, 255, 255, 0.08);
   --border-focus: rgba(143, 148, 251, 0.5);
-  
+
   --success: #2ecc71;
   --warning: #f1c40f;
   --danger: #e74c3c;
-  
+
   /* Radii */
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
   --radius-full: 9999px;
-  
+
   /* Shadows */
   --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 10px 20px rgba(0, 0, 0, 0.2);
   --shadow-glow: 0 0 20px var(--primary-glow);
-  
+
   /* Glassmorphism */
   --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-border: 1px solid rgba(255, 255, 255, 0.05);
@@ -51,13 +51,18 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.6;
-  background-image: 
+  background-image:
     radial-gradient(circle at 15% 50%, rgba(78, 84, 200, 0.15), transparent 25%),
     radial-gradient(circle at 85% 30%, rgba(143, 148, 251, 0.15), transparent 25%);
   background-attachment: fixed;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Outfit', sans-serif;
   font-weight: 600;
   line-height: 1.2;
@@ -176,8 +181,15 @@ a:hover {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -185,9 +197,17 @@ a:hover {
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 var(--primary-glow); }
-  70% { box-shadow: 0 0 0 10px rgba(0,0,0,0); }
-  100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+  0% {
+    box-shadow: 0 0 0 0 var(--primary-glow);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
 }
 
 .animate-pulse {
@@ -204,10 +224,33 @@ a:hover {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-card);
+  background: rgba(78, 84, 200, 0.45);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
+}
+
+/* ─── Visually Hidden (Screen Reader Only) ─── */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ─── High Contrast Mode Support ─── */
+@media (forced-colors: active) {
+  .glass-panel {
+    border: 2px solid ButtonText;
+  }
+  .btn-primary {
+    border: 2px solid ButtonText;
+  }
 }

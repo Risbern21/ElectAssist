@@ -44,7 +44,7 @@ const Layout = () => {
     try {
       await signOut(auth);
     } catch (error) {
-       console.error("Sign out error", error);
+      console.error("Sign out error", error);
     }
   };
 
@@ -56,7 +56,7 @@ const Layout = () => {
             <ShieldCheck className="brand-logo" size={32} />
             <span className="brand-text">ElectAssist</span>
           </Link>
-          
+
           <div className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
             <Link to="/" className="nav-link" onClick={() => setIsMenuOpen(false)}><Home size={20} /><span>Home</span></Link>
             <Link to="/guide" className="nav-link" onClick={() => setIsMenuOpen(false)}><BookOpen size={20} /><span>Guide</span></Link>
@@ -67,26 +67,26 @@ const Layout = () => {
               <Link to="/admin" className="nav-link" onClick={() => setIsMenuOpen(false)}><ShieldAlert size={20} className="text-accent" /><span>Admin Panel</span></Link>
             )}
           </div>
-          
-          <div className="nav-actions flex-center" style={{gap: '12px'}}>
-            <div className="auth-section flex-center" style={{gap: '12px'}}>
+
+          <div className="nav-actions flex-center" style={{ gap: '12px' }}>
+            <div className="auth-section flex-center" style={{ gap: '12px' }}>
               {user ? (
-                 <div className="flex-center" style={{gap: '12px'}}>
-                    <img src={user.photoURL || `https://ui-avatars.com/api/?name=${user.email}`} 
-                         alt="User" 
-                         style={{width: '36px', height: '36px', borderRadius: '50%', border: '2px solid var(--secondary)'}} 
-                    />
-                    <div style={{display: 'flex', flexDirection: 'column', fontSize: '0.85rem'}}>
-                       <span style={{fontWeight: 'bold'}}>{user.displayName || 'Citizen'}</span>
-                       <span className="text-success">Verified</span>
-                    </div>
-                    <button className="icon-btn" onClick={handleSignOut} title="Sign Out">
-                       <LogOut size={18} className="text-muted"
-                       color='white' />
-                    </button>
-                 </div>
+                <div className="flex-center" style={{ gap: '12px' }}>
+                  <img src={user.photoURL || `https://ui-avatars.com/api/?name=${user.email}`}
+                    alt="User"
+                    style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid var(--secondary)' }}
+                  />
+                  <div style={{ display: 'flex', flexDirection: 'column', fontSize: '0.85rem' }}>
+                    <span style={{ fontWeight: 'bold' }}>{user.displayName || 'Citizen'}</span>
+                    <span className="text-success">Verified</span>
+                  </div>
+                  <button className="icon-btn" onClick={handleSignOut} title="Sign Out">
+                    <LogOut size={18} className="text-muted"
+                      color='white' />
+                  </button>
+                </div>
               ) : (
-                 <button className="btn btn-primary" onClick={handleSignIn}>Sign In</button>
+                <button className="btn btn-primary" onClick={handleSignIn}>Sign In</button>
               )}
             </div>
 
@@ -96,11 +96,11 @@ const Layout = () => {
           </div>
         </div>
       </nav>
-      
+
       <main className="main-content">
         <Outlet />
       </main>
-      
+
       <footer className="footer glass-panel">
         <div className="container flex-center">
           <p className="text-muted">© 2026 ElectAssist. Empowering Citizens through Election Intelligence.</p>

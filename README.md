@@ -6,6 +6,38 @@ ElectAssist is an interactive, AI-powered election assistant designed to help ci
 
 ---
 
+## 🎯 Chosen Vertical
+**Smart Citizen & Election Assistant**
+This project falls under the domain of civic technology and election transparency. It aims to bridge the information gap between voters and candidates by providing an AI-driven, accessible, and verified source of truth for local elections.
+
+---
+
+## 🧠 Approach and Logic
+Our approach centers around trust, accessibility, and AI-driven insights:
+1. **Trust through Verification:** We leverage community-sourced video proofs of candidate works. To prevent misinformation, these videos are subjected to AI-assisted moderation (using Video Intelligence) before being approved by administrators, directly impacting a candidate's "Trust Score".
+2. **Accessible Information:** Complex election manifestos and procedures are simplified using a RAG (Retrieval-Augmented Generation) chatbot powered by Gemini 2.5 Flash. This allows voters to ask natural language questions in multiple languages.
+3. **Locality-Awareness:** Voters care most about their immediate surroundings. We integrate Google Maps to visualize polling booths, verified work locations, and candidate activities specific to a voter's ward.
+4. **Security & Accessibility First:** We prioritize WCAG compliance for the frontend to ensure all citizens can use the platform, and robust Firebase/FastAPI security for the backend to protect user data.
+
+---
+
+## ⚙️ How the Solution Works
+1. **User Authentication:** Citizens and admins log in securely using Firebase Auth (Google OAuth).
+2. **Exploration & Discovery:** Users can view the Candidate Leaderboard, sorted by Trust Scores, or use the interactive Map to find local polling booths.
+3. **AI Chatbot (RAG):** Users interact with the ElectAssist Guide. The backend processes the query, retrieves relevant local election data or candidate manifestos using Vertex AI Vector Search, and generates a grounded response using Gemini 2.5 Flash.
+4. **Community Contributions:** Citizens can upload video proofs of a candidate's completed public works.
+5. **Moderation Queue:** Uploaded videos enter a pending state. Admins review them via a secure dashboard. Approved videos automatically increment the candidate's verified works and Trust Score in Firestore.
+
+---
+
+## 🤔 Assumptions Made
+- **Data Availability:** It is assumed that an initial seed of candidate data (names, parties, wards) and official manifestos are available to populate the Firestore database and Vector Search index.
+- **Admin Provisioning:** The first admin user is manually provisioned or verified out-of-band to establish the root of trust for the moderation system.
+- **Modern Browser:** The frontend assumes the user is on a modern browser that supports standard HTML5 video, geolocation, and ES6 JavaScript.
+- **Language Support:** While Gemini supports multiple languages, the initial UI text is provided in English, with AI responses handling translation dynamically based on user prompts.
+
+---
+
 ## 🏗️ System Architecture
 
 ```mermaid

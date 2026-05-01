@@ -10,3 +10,4 @@ httpx>=0.25.1
 python-multipart>=0.0.9
 anyio[trio]>=4.0
 pytest-anyio>=0.0.0
+slowapi>=0.1.8
