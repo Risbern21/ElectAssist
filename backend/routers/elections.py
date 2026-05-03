@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from firebase_admin import firestore
 from schemas.election import ElectionStageCreate, ElectionStageResponse
-from core.auth import verify_admin_status
+from core.auth import verify_admin_status, verify_firebase_token
 import datetime
 
 router = APIRouter(tags=["Elections Timeline"])
 
 @router.get("/elections/timeline", response_model=List[ElectionStageResponse])
-async def get_timeline():
+async def get_timeline(user_token: dict = Depends(verify_firebase_token)):
     """
     Returns the current election cycle roadmap from Firestore.
     """

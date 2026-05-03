@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Search, MapPin, Award, Filter, Video, ThumbsUp, Loader, UploadCloud } from 'lucide-react';
-import { candidateApi, videoApi } from '../lib/api';
+import { candidateApi, videoApi, authApi } from '../lib/api';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import './Candidates.css';
 
 const Candidates = () => {
@@ -10,6 +12,16 @@ const Candidates = () => {
   const [selectedWard, setSelectedWard] = useState('All');
   const [uploadingCandidate, setUploadingCandidate] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setAuthLoading(false);
+    });
+    return () => unsub();
+  }, []);
 
   const handleFileUpload = async (e, candidateId, candidateName) => {
     const file = e.target.files[0];
@@ -57,6 +69,18 @@ const Candidates = () => {
     return matchesSearch;
   });
 
+  if (authLoading) {
+    return <div className="flex-center" style={{ padding: '4rem' }}><Loader className="animate-spin text-primary" size={48} /></div>;
+  }
+  if (!user) {
+    return (
+      <div className="container glass-panel" style={{ padding: '4rem', textAlign: 'center', marginTop: '2rem' }}>
+        <h2>Login Required</h2>
+        <p className="text-muted" style={{ marginTop: '1rem' }}>Please sign in to view candidates in your locality.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="candidates-page container animate-fade-in">
       <header className="page-header">
@@ -103,7 +127,12 @@ const Candidates = () => {
               id="ward-select"
               className="select-glass"
               value={selectedWard}
-              onChange={(e) => setSelectedWard(e.target.value)}
+              onChange={(e) => {
+                const newWard = e.target.value;
+                setSelectedWard(newWard);
+                // Save locality preference to backend
+                authApi.updateWard(newWard);
+              }}
               aria-label="Filter candidates by ward"
             >
               <option value="All">All Wards</option>

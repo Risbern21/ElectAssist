@@ -4,6 +4,9 @@ from unittest.mock import MagicMock, patch
 import datetime
 
 
+from main import app
+from core.auth import verify_firebase_token
+
 def _make_stage_doc(doc_id: str, title: str):
     doc = MagicMock()
     doc.id = doc_id
@@ -16,6 +19,13 @@ def _make_stage_doc(doc_id: str, title: str):
     }
     return doc
 
+@pytest.fixture(autouse=True)
+def override_auth():
+    app.dependency_overrides[verify_firebase_token] = lambda: {"uid": "test-uid", "email": "test@test.com"}
+    yield
+    # Only clear if it's verify_firebase_token to not mess up other tests that override it locally
+    if verify_firebase_token in app.dependency_overrides:
+        del app.dependency_overrides[verify_firebase_token]
 
 @pytest.mark.anyio
 async def test_get_timeline_returns_stages(client, mock_firestore_client):
@@ -50,6 +60,7 @@ async def test_get_timeline_returns_empty_on_error(client, mock_firestore_client
 @pytest.mark.anyio
 async def test_create_stage_without_auth_returns_401(client):
     """POST /api/elections/timeline without a valid token → 401."""
+    app.dependency_overrides.clear()
     payload = {
         "title": "Polling Day",
         "description": "Final voting day",

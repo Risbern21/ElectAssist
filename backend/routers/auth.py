@@ -25,12 +25,14 @@ async def sync_user_role(user_token: dict = Depends(verify_firebase_token)):
             "uid": uid,
             "email": email,
             "role": role,
+            "ward": "All",
             "created_at": datetime.datetime.now(datetime.timezone.utc),
             "last_login": datetime.datetime.now(datetime.timezone.utc)
         })
     else:
         # Use existing role from DB
-        role = user_doc.to_dict().get("role", "user")
+        user_data = user_doc.to_dict()
+        role = user_data.get("role", "user")
         user_ref.update({
             "last_login": datetime.datetime.now(datetime.timezone.utc)
         })
@@ -43,7 +45,22 @@ async def sync_user_role(user_token: dict = Depends(verify_firebase_token)):
         return {
             "status": "success",
             "message": f"User synced. Role '{role}' saved to authentication claims.",
-            "role": role
+            "role": role,
+            "ward": user_doc.to_dict().get("ward", "All") if user_doc.exists else "All"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to set auth claims: {str(e)}")
+
+from pydantic import BaseModel
+class WardUpdate(BaseModel):
+    ward: str
+
+@router.put("/auth/ward")
+async def update_user_ward(ward_data: WardUpdate, user_token: dict = Depends(verify_firebase_token)):
+    uid = user_token.get("uid")
+    db = firestore.client()
+    user_ref = db.collection('users').document(uid)
+    user_ref.update({"ward": ward_data.ward})
+    return {"status": "success", "ward": ward_data.ward}
+
+

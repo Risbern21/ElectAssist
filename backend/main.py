@@ -1,4 +1,9 @@
 import os
+import warnings
+
+# Suppress vertexai SDK deprecation warnings as we are not yet migrating to google-genai
+warnings.filterwarnings("ignore", module="vertexai")
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles

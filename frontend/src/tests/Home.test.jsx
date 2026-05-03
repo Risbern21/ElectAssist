@@ -21,14 +21,14 @@ describe('Home page', () => {
 
   it('renders the "Ask the AI Guide" CTA link pointing to /chat', () => {
     renderHome();
-    const link = screen.getByRole('link', { name: /ask the ai guide/i });
+    const link = screen.getByRole('link', { name: /open ai election guide chat/i });
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', '/chat');
   });
 
   it('renders the "View Candidates" link pointing to /candidates', () => {
     renderHome();
-    const link = screen.getByRole('link', { name: /view candidates/i });
+    const link = screen.getByRole('link', { name: /browse candidate leaderboard/i });
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', '/candidates');
   });

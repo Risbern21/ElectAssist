@@ -2,7 +2,8 @@
 import pytest
 from unittest.mock import MagicMock, patch
 import datetime
-
+from main import app
+from core.auth import verify_firebase_token
 
 def _make_fake_doc(doc_id: str, name: str, ward: str, score: int = 50):
     """Helper that mimics a Firestore document snapshot."""
@@ -20,6 +21,11 @@ def _make_fake_doc(doc_id: str, name: str, ward: str, score: int = 50):
     }
     return doc
 
+@pytest.fixture(autouse=True)
+def override_auth():
+    app.dependency_overrides[verify_firebase_token] = lambda: {"uid": "test-uid", "email": "test@test.com"}
+    yield
+    app.dependency_overrides.clear()
 
 @pytest.mark.anyio
 async def test_leaderboard_returns_all_candidates(client, mock_firestore_client):
@@ -31,6 +37,12 @@ async def test_leaderboard_returns_all_candidates(client, mock_firestore_client)
     mock_query = MagicMock()
     mock_query.stream.return_value = iter(fake_docs)
     mock_firestore_client.collection.return_value.order_by.return_value = mock_query
+    
+    # Mock user document
+    mock_user_doc = MagicMock()
+    mock_user_doc.exists = True
+    mock_user_doc.to_dict.return_value = {"ward": "All"}
+    mock_firestore_client.collection.return_value.document.return_value.get.return_value = mock_user_doc
 
     response = await client.get("/api/candidates")
 
@@ -38,7 +50,6 @@ async def test_leaderboard_returns_all_candidates(client, mock_firestore_client)
     data = response.json()
     assert len(data) == 2
     assert data[0]["name"] == "Alice"
-
 
 @pytest.mark.anyio
 async def test_leaderboard_filters_by_ward(client, mock_firestore_client):
@@ -48,6 +59,12 @@ async def test_leaderboard_filters_by_ward(client, mock_firestore_client):
     mock_query.stream.return_value = iter(fake_docs)
     (mock_firestore_client.collection.return_value
      .where.return_value.order_by.return_value) = mock_query
+     
+    # Mock user document
+    mock_user_doc = MagicMock()
+    mock_user_doc.exists = True
+    mock_user_doc.to_dict.return_value = {"ward": "All"}
+    mock_firestore_client.collection.return_value.document.return_value.get.return_value = mock_user_doc
 
     response = await client.get("/api/candidates?ward=Ward+1")
 
@@ -56,17 +73,21 @@ async def test_leaderboard_filters_by_ward(client, mock_firestore_client):
     assert len(data) == 1
     assert data[0]["ward"] == "Ward 1"
 
-
 @pytest.mark.anyio
 async def test_leaderboard_returns_empty_on_firestore_error(client, mock_firestore_client):
     """If Firestore raises, the endpoint gracefully returns an empty list."""
     mock_firestore_client.collection.return_value.order_by.side_effect = Exception("DB unavailable")
+    
+    # Mock user document
+    mock_user_doc = MagicMock()
+    mock_user_doc.exists = True
+    mock_user_doc.to_dict.return_value = {"ward": "All"}
+    mock_firestore_client.collection.return_value.document.return_value.get.return_value = mock_user_doc
 
     response = await client.get("/api/candidates")
 
     assert response.status_code == 200
     assert response.json() == []
-
 
 @pytest.mark.anyio
 async def test_leaderboard_all_ward_treated_as_no_filter(client, mock_firestore_client):
@@ -75,6 +96,12 @@ async def test_leaderboard_all_ward_treated_as_no_filter(client, mock_firestore_
     mock_query = MagicMock()
     mock_query.stream.return_value = iter(fake_docs)
     mock_firestore_client.collection.return_value.order_by.return_value = mock_query
+    
+    # Mock user document
+    mock_user_doc = MagicMock()
+    mock_user_doc.exists = True
+    mock_user_doc.to_dict.return_value = {"ward": "All"}
+    mock_firestore_client.collection.return_value.document.return_value.get.return_value = mock_user_doc
 
     response = await client.get("/api/candidates?ward=All")
 
